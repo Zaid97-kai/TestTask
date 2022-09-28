@@ -52,7 +52,6 @@ namespace TestTask
                     {
                         setsSecondCount = Convert.ToInt32(sets[i]);
                         serverTasksQueue.Add(new Queue<ServerTask>());
-                        flag = true;
                         i++;
                     }
                 }
@@ -77,6 +76,18 @@ namespace TestTask
                     {
                         i += j;
                     }
+                }
+            }
+
+            foreach (Queue<ServerTask> serverTaskQueue in serverTasksQueue)
+            {
+                foreach (ServerTask serverTask in serverTaskQueue)
+                {
+                    while (serverTask.first >= currentTime)
+                    {
+                        currentTime++;
+                    }
+                    currentTime += serverTask.second;
                 }
             }
         }
