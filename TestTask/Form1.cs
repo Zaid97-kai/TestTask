@@ -16,7 +16,6 @@ namespace TestTask
         public static int currentTime = 0;
         public static int setsFirstCount = 0;
         public static int setsSecondCount = 0;
-        public static string currentText = "";
         public List<Queue<ServerTask>> serverTasksQueue;
         /// <summary>
         /// Конструктор формы
@@ -42,68 +41,92 @@ namespace TestTask
         /// <param name="e"></param>
         private void bnGenerate_Click(object sender, EventArgs e)
         {
+            bool flag = false;
+            bool secondFlag = false;
+            string[] sets = tbInputData.Text.Split(new char[] { '\n', '\n' });
+
+            if(tbInputData.Text == "")
+            {
+                MessageBox.Show("Поле входных данных не заполнено.");
+            }
+
             tbOutputData.Text = "";
             serverTasksQueue.Clear();
-            bool flag = false;
-            currentText = tbInputData.Text;
-            string[] sets = currentText.Split(new char[] { '\n', '\n' });
-            flag = ProcessingInputParameters(flag, sets);
+            secondFlag = ProcessingInputParameters(flag, sets);
+
+            if(secondFlag == false)
+            {
+                return;
+            }
 
             TaskSolution();
         }
 
         private bool ProcessingInputParameters(bool flag, string[] sets)
         {
-            for (int i = 0; i < sets.Length; i++)
+            try
             {
-                if (!flag)
+                for (int i = 0; i < sets.Length; i++)
                 {
-                    setsFirstCount = Convert.ToInt32(sets[0]);
-                    flag = true;
-                    continue;
-                }
-                else if (sets[i] == " ")
-                {
-                    continue;
-                }
-                else if (flag && !sets[i].Contains(" "))
-                {
-                    if (sets[i] == "")
+                    if (!flag)
+                    {
+                        setsFirstCount = Convert.ToInt32(sets[0]);
+                        flag = true;
+                        continue;
+                    }
+                    else if (sets[i] == " ")
                     {
                         continue;
                     }
-                    else
+                    else if (flag && !sets[i].Contains(" "))
                     {
-                        setsSecondCount = Convert.ToInt32(sets[i]);
-                        serverTasksQueue.Add(new Queue<ServerTask>());
-                        i++;
-                    }
-                }
-
-                for (int j = 0; j < setsSecondCount; j++)
-                {
-                    if (sets[i + j].Contains(" "))
-                    {
-                        string[] tempSets = sets[i + j].Split(' ');
-
-                        Queue<ServerTask> serverTasks = new Queue<ServerTask>();
-
-                        ServerTask serverTask = new ServerTask()
+                        if (sets[i] == "")
                         {
-                            first = Convert.ToInt32(tempSets[0]),
-                            second = Convert.ToInt32(tempSets[1])
-                        };
-
-                        serverTasksQueue[serverTasksQueue.Count - 1].Enqueue(serverTask);
+                            continue;
+                        }
+                        else
+                        {
+                            setsSecondCount = Convert.ToInt32(sets[i]);
+                            serverTasksQueue.Add(new Queue<ServerTask>());
+                            i++;
+                        }
                     }
-                    if (j == setsSecondCount - 1)
+
+                    for (int j = 0; j < setsSecondCount; j++)
                     {
-                        i += j;
+                        Queue<ServerTask> serverTasks = new Queue<ServerTask>();
+                        if (sets[i + j].Contains(" "))
+                        {
+                            string[] tempSets = sets[i + j].Split(' ');
+
+                            ServerTask serverTask = new ServerTask()
+                            {
+                                first = Convert.ToInt32(tempSets[0]),
+                                second = Convert.ToInt32(tempSets[1])
+                            };
+
+                            serverTasksQueue[serverTasksQueue.Count - 1].Enqueue(serverTask);
+                        }
+                        if (j == setsSecondCount - 1)
+                        {
+                            i += j;
+                        }
                     }
                 }
-            }
 
-            return flag;
+                if (setsFirstCount != serverTasksQueue.Count())
+                {
+                    MessageBox.Show("Количество наборов входных данных в тесте не совпадает с введенным числом q.");
+                    return false;
+                }
+
+                return true;
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n" + "Проверьте корректность формата введенных данных.");
+                return false;
+            }
         }
 
         /// <summary>
