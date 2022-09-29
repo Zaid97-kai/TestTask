@@ -18,18 +18,42 @@ namespace TestTask
         public static int setsSecondCount = 0;
         public static string currentText = "";
         public List<Queue<ServerTask>> serverTasksQueue;
+        /// <summary>
+        /// Конструктор формы
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
-            tbInputData.Text = "3\n\n3\n2 2\n4 4\n6 6\n\n3\n3 3\n7 7\n6 6\n\n2\n2 2\n5 5";
+            tbInputData.Text = TestingData();
             serverTasksQueue = new List<Queue<ServerTask>>();
         }
-
+        /// <summary>
+        /// Метод, возвращающий тестовые входные данные
+        /// </summary>
+        /// <returns></returns>
+        private static string TestingData()
+        {
+            return "3\n\n3\n2 2\n4 6\n100 6\n\n3\n3 3\n6 6\n8 10\n\n2\n2 2\n5 5";
+        }
+        /// <summary>
+        /// Обработчик события нажатия на кнопку "Решить задачу"
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bnGenerate_Click(object sender, EventArgs e)
         {
+            tbOutputData.Text = "";
+            serverTasksQueue.Clear();
             bool flag = false;
             currentText = tbInputData.Text;
             string[] sets = currentText.Split(new char[] { '\n', '\n' });
+            flag = ProcessingInputParameters(flag, sets);
+
+            TaskSolution();
+        }
+
+        private bool ProcessingInputParameters(bool flag, string[] sets)
+        {
             for (int i = 0; i < sets.Length; i++)
             {
                 if (!flag)
@@ -72,23 +96,34 @@ namespace TestTask
 
                         serverTasksQueue[serverTasksQueue.Count - 1].Enqueue(serverTask);
                     }
-                    if(j == setsSecondCount - 1)
+                    if (j == setsSecondCount - 1)
                     {
                         i += j;
                     }
                 }
             }
 
+            return flag;
+        }
+
+        /// <summary>
+        /// Решение задачи
+        /// </summary>
+        private void TaskSolution()
+        {
             foreach (Queue<ServerTask> serverTaskQueue in serverTasksQueue)
             {
                 foreach (ServerTask serverTask in serverTaskQueue)
                 {
-                    while (serverTask.first >= currentTime)
+                    while (currentTime < serverTask.first)
                     {
                         currentTime++;
                     }
                     currentTime += serverTask.second;
+                    tbOutputData.Text += Convert.ToString(currentTime) + " ";
                 }
+                currentTime = 0;
+                tbOutputData.Text += "\n";
             }
         }
     }
